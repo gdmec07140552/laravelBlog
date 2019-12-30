@@ -1,0 +1,98 @@
+	<!-- 头部文件引入 -->
+	@extends('admin/common/header')
+		@section('content')
+	<body>
+		<div class="layui-layout layui-layout-admin">
+			<div class="layui-header header header-demo">
+				<div class="layui-main">
+					<a class="logo" href="{{url('Index/index')}}">{{isset($website['admin_name'])?$website['admin_name']:''}}</a>
+					<ul class="layui-nav" lay-filter="">
+						<li class="layui-nav-item">
+							<img src="{{isset($website['admin_logo'])?$website['admin_logo']:''}}" class="layui-circle" style="border: 2px solid #A9B7B7;" width="35px" alt="">
+						</li>
+						<li class="layui-nav-item">
+							<a href="javascript:;">{{Session('user')['admin_name']}}</a>
+							<dl class="layui-nav-child"> <!-- 二级菜单 -->
+								<dd>
+									<a href="">个人信息</a>
+								</dd>
+								<dd>
+									<a href="">切换帐号</a>
+								</dd>
+								<dd>
+									<a href="{{url('Login/logout')}}">退出</a>
+								</dd>
+							</dl>
+						</li>
+						<li class="layui-nav-item">
+							<a href="" title="消息">
+								<i class="layui-icon" style="top: 1px;">&#xe63a;</i>
+							</a>
+						</li>
+						<li class="layui-nav-item cleanRedis">
+							<a href="javascript:;"  title="清理缓存">
+								<i class="layui-icon" style="top: 1px;">&#xe639;</i>
+							</a>
+						</li>
+						<li class="layui-nav-item x-index">
+							<a href="/">前台首页</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<!-- 侧边栏文件引入 -->
+			@include('admin.common.sidebar')
+			<div class="layui-tab layui-tab-card site-demo-title x-main" lay-filter="x-tab" lay-allowclose="true">
+				<div class="x-slide_left"></div>
+				<ul class="layui-tab-title">
+					<li class="layui-this">
+						我的桌面
+						<i class="layui-icon layui-unselect layui-tab-close">ဆ</i>
+					</li>
+				</ul>
+				<div class="layui-tab-content site-demo site-demo-body">
+					<div class="layui-tab-item layui-show">
+						<iframe frameborder="0" src="{{url('admin/welcome')}}" class="x-iframe"></iframe>
+					</div>
+				</div>
+			</div>
+			<div class="site-mobile-shade">
+			</div>
+		</div>
+		<script type="text/javascript">
+			// 清理前端页面的redis缓存
+			$(function(){
+				layui.use(['layer'], function(){
+					$ = layui.jquery;
+				  	layer = layui.layer;
+				});
+				$('.cleanRedis').on('click', function(){
+					layer.confirm('您确定要清理缓存数据吗？', {
+						btn: ['确定','取消'] //按钮
+					}, function(){
+						layer.msg('确定', {icon: 6});
+						$.get(
+							"{{url('Index/cleanRedis')}}",
+							function(res){
+								if (res['status'] == 1)
+									layer.msg(res['msg'], {icon: 6});
+								else
+									layer.msg(res['msg'], {icon: 5});
+							});
+					});
+				});
+			});
+		</script>
+		<script>
+		var _hmt = _hmt || [];
+		(function() {
+			var hm = document.createElement("script");
+			hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";
+		  	var s = document.getElementsByTagName("script")[0];
+		  	s.parentNode.insertBefore(hm, s);
+		  	console.log(s);
+		})();
+		</script>
+	</body>
+</html>
+@endsection

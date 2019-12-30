@@ -1,0 +1,73 @@
+{include file="common/header" /}
+	<div class="x-body">
+		<form class="layui-form" enctype="multipart/form-data">
+			<div class="layui-form-item">
+				<label for="tag_name" class="layui-form-label">
+					标签名称
+				</label>
+				<div class="layui-input-inline">
+					<input type="text" id="tag_name" placeholder="请输入标签名称" name="tag_name" class="layui-input" lay-verify="required">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label for="sort" class="layui-form-label">
+					展示顺序
+				</label>
+				<div class="layui-input-inline">
+					<input type="text" id="sort" value="0" name="sort" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux">
+					<span class="x-red">越大排在前面最大不能超过255</span>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">是否显示</label>
+				<div class="layui-input-block">
+					 <input type="radio" name="is_show" checked value="0" title="显示">
+					 <input type="radio" name="is_show" value="-1" title="隐藏">
+				</div>
+			 </div>
+			<input type="hidden" name="token" value="{$token}">
+			<div class="layui-form-item">
+				<label for="L_repass" class="layui-form-label"></label>
+				<button  class="layui-btn" lay-filter="add" lay-submit="">
+					确定
+				</button>
+			</div>
+		</form>
+	</div>
+	<script>
+		layui.use(['form','layer'], function(){
+			$ = layui.jquery;
+		  	var form = layui.form()
+		  	,layer = layui.layer;
+		
+		  //监听提交
+		form.on('submit(add)', function(data){
+			// 提交数据到后台
+			// var _this = parent.layer;
+			$.ajax({
+				url: "{:url('Tag/ajaxAddData')}",
+				type: 'post',
+				data: data['field'],
+				success:function(res){
+					if (res['status'] == 1)
+					{
+						layer.msg(res['msg'], {icon: 6});
+						setTimeout(function(){window.parent.location.reload();}, 2000);
+						// var index = _this.getFrameIndex(window.name);
+						// _this.close(index);
+					} else {
+						layer.msg(res['msg'], {icon: 5});
+					}
+				}
+			});
+			return false;
+		  });
+		  
+		  
+		});
+	</script>
+</body>
+
+</html>
