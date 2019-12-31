@@ -155,7 +155,7 @@
                     </tr>
                     <tr>
                         <td>当前SessionID </td>
-                        <td>{{session_id()}}</td>
+                        <td><?php session_start(); echo session_id(); ?></td>
                     </tr>
                     <tr>
                         <td>当前系统用户名 </td>

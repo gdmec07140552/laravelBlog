@@ -39,6 +39,12 @@ class AppServiceProvider extends ServiceProvider
             $conf = Config::get('websiteConf');
             $view->with('website',$conf);
         });
+        //登录页面信息
+        view()->composer('admin.login.login', function ($view){
+            //获取配置文件信息
+            $conf = Config::get('websiteConf');
+            $view->with('website', $conf);
+        });
     }
 
     /**

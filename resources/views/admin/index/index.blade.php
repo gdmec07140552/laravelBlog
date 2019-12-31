@@ -20,7 +20,7 @@
 									<a href="">切换帐号</a>
 								</dd>
 								<dd>
-									<a href="{{url('Login/logout')}}">退出</a>
+									<a href="{{url('admin/logout')}}">退出</a>
 								</dd>
 							</dl>
 						</li>

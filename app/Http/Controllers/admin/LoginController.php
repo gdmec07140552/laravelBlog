@@ -4,9 +4,12 @@ namespace App\Http\Controllers\admin;
 
 use App\Models\Admin;
 use App\Models\AdminLog;
+use App\Models\Auth;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -41,6 +44,8 @@ class LoginController extends Controller
             $request->session()->put('user', $res);
             // 3.管理员日志记录
             AdminLog::addLog();
+            // 4.保存用户的基本权限
+            $this->setPermission($request);
 
             return ['status' => 1, 'msg' => '登录成功'];
         } else {
@@ -49,5 +54,47 @@ class LoginController extends Controller
             Redis::expire($key_name, 86400);
             return ['status' => 0, 'msg' => '用户名或密码错误'];
         }
+    }
+
+    /**
+     * [setPermission 保护用户的权限信息]
+     * @param [type] $user [description]
+     */
+    protected function setPermission($request)
+    {
+        $user = Session::get('user');
+        if ($user['admin_id'] == 1)
+        {
+            // 超级管理员，大boss给所有权限
+            $request->session()->put('auth', 'all');
+        } else {
+            if ($user['role_id'] > 0)
+            {
+                // 获取角色下拥有的权限
+                $role = Role::where('role_id', '=', $user['role_id'])->value('auth');
+                $idArr = explode(',', $role);
+                $where['auth_id'] = ['in', $idArr];
+                $authObject = Auth::whereIn('auth_id', $idArr)->get(['auth_link']);
+                foreach ($authObject as $value)
+                {
+                    $auth[] = $value['auth_link'];
+                }
+                $request->session()->put('auth', $auth);
+            } else {
+                $request->session()->put('auth', '');
+            }
+
+        }
+
+        return Session::get('auth');
+    }
+
+    /*
+     * 退出登录
+     * */
+    public function logout(Request $request)
+    {
+        $request->session()->flush();
+        return redirect('admin/login');
     }
 }

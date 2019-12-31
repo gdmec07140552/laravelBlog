@@ -1,4 +1,4 @@
-{include file="common/header" /}
+@include('admin.common.header')
 	<div class="x-body">
 		<form class="layui-form">
 			<div class="layui-form-item">
@@ -14,7 +14,7 @@
 			<div class="layui-form-item">
 				<label  class="layui-form-label">缩略图
 				</label>
-				<img id="LAY_demo_upload" style="width: 112px; height: 80px;" width="400" src="{:empty($result['img_url'])?'':$result['img_url']}">
+				<img id="LAY_demo_upload" style="width: 112px; height: 80px;" width="400" src="{{empty($result['img_url'])?'':asset($result['img_url'])}}">
 			</div>
 			
 			<div class="layui-form-item">
@@ -22,7 +22,7 @@
 					链接地址
 				</label>
 				<div class="layui-input-inline">
-					<input type="text" id="link" value="{$result['link_url']}" name="link_url" class="layui-input">
+					<input type="text" id="link" value="{{$result['link_url']}}" name="link_url" class="layui-input">
 				</div>
 			</div>
 			<div class="layui-form-item">
@@ -30,7 +30,7 @@
 					展示顺序
 				</label>
 				<div class="layui-input-inline">
-					<input type="text" id="sort" value="{$result['sort']}" name="sort" class="layui-input">
+					<input type="text" id="sort" value="{{$result['sort']}}" name="sort" class="layui-input">
 				</div>
 				<div class="layui-form-mid layui-word-aux">
 					<span class="x-red">越大排在前面最大不能超过255</span>
@@ -39,8 +39,8 @@
 			<div class="layui-form-item">
 				<label class="layui-form-label">是否显示</label>
 				<div class="layui-input-block">
-					 <input type="radio" name="is_show" {$result['is_show']==-1?'':'checked'} value="0" title="显示">
-					 <input type="radio" name="is_show" {$result['is_show']==-1?'checked':''} value="-1" title="隐藏">
+					 <input type="radio" name="is_show" {{$result['is_show']==-1?'':'checked'}} value="0" title="显示">
+					 <input type="radio" name="is_show" {{$result['is_show']==-1?'checked':''}} value="-1" title="隐藏">
 				</div>
 			 </div>
 			<div class="layui-form-item">
@@ -48,9 +48,9 @@
 				<div class="layui-input-block">
 					<select name="art_id" id="art_id" lay-verify="required">
 						<option value="0">请选择文章</option>
-						{foreach name="article" item="art"}
-							<option value="{$art['art_id']}" {$art['art_id']==$result['art_id']?'selected':''}>{$art['art_title']}</option>
-						{/foreach}
+						<?php foreach ($article as $art): ?>
+							<option value="{{$art['art_id']}}" {{$art['art_id']==$result['art_id']?'selected':''}}>{{$art['art_title']}}</option>
+						<?php endforeach; ?>
 					</select>
 				</div>
 			</div>
@@ -59,11 +59,12 @@
 					图片描述
 				</label>
 				<div class="layui-input-block">
-			     	<textarea for="img_des" name="img_des" placeholder="请输入内容" class="layui-textarea">{$result['img_des']}</textarea>
+			     	<textarea for="img_des" name="img_des" placeholder="请输入内容" class="layui-textarea">{{$result['img_des']}}</textarea>
 			    </div>
 			</div>
-			<input type="hidden" name="img_url" value="{$result['img_url']}">
-			<input type="hidden" name="banner_id" value="{$result['banner_id']}">
+			{{csrf_field()}}
+			<input type="hidden" name="img_url" value="{{$result['img_url']}}">
+			<input type="hidden" name="banner_id" value="{{$result['banner_id']}}">
 			<div class="layui-form-item">
 				<label for="L_repass" class="layui-form-label">
 				</label>
@@ -82,7 +83,7 @@
 
 		  //图片上传接口
 		layui.upload({
-			url: '{:url("Common/uploads")}' //上传接口
+			url: '{{url("admin/index/uploads")}}' //上传接口
 			,success: function(res){ //上传成功后的回调
 				// console.log(res);
 				if (res['status'] == 1)
@@ -99,7 +100,6 @@
 
 		//监听提交
 		form.on('submit(add)', function(data){
-			// console.log(data);
 			var img_url = $("input[name='img_url']").val();
 			if (!img_url) {
 				layer.msg('请上传图片', {icon: 5});
@@ -109,7 +109,7 @@
 			// 提交数据到后台
 			var _this = parent.layer;
 			$.ajax({
-				url: "{:url('Banner/ajaxEidtData')}",
+				url: "{{url('admin/banner/update')}}",
 				type: 'post',
 				data: data['field'],
 				success:function(res){

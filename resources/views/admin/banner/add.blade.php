@@ -79,16 +79,17 @@
 		  	,layer = layui.layer;
 
 
-		  //图片上传接口
+		//图片上传接口
 		layui.upload({
 			url: '{{url("admin/index/uploads")}}' //上传接口
+			,data:{'_token':'{{csrf_token()}}'}
 			,success: function(res){ //上传成功后的回调
 				// console.log(res);
 				if (res['status'] == 1)
 				{
 					// 显示图片并记录图片地址
 					$('input[name="img_url"]').val(res['img_url']);
-			  		$('#LAY_demo_upload').attr('src', res['img_url']);
+			  		$('#LAY_demo_upload').attr('src', res['all_imgurl']);
 				} else {
 					layer.msg('图片上传失败', {icon: 5});
 				}

@@ -47,7 +47,7 @@
 
                         </td>
                         <td>
-                            <img style="height: 80px; width: auto;" src="{{$res['img_url']}}" width="200" alt="{{$res['img_des']}}">
+                            <img style="height: 80px; width: auto;" src="{{asset($res['img_url'])}}" width="200" alt="{{$res['img_des']}}">
                         </td>
                         <td >
                             {{$res['link_url']}}
@@ -64,11 +64,11 @@
                             <!-- <a style="text-decoration:none" onclick="banner_stop(this,'10001')" href="javascript:;" title="不显示">
                                 <i class="layui-icon">&#xe601;</i>
                             </a> -->
-                            <a title="编辑" href="javascript:;" onclick="banner_edit('编辑','{{url('admin/banner/edit')}}?banner_id={{$res['banner_id']}}','4','600','630')"
+                            <a title="编辑" href="javascript:;" onclick="banner_edit('编辑','{{url('admin/banner/edit')}}/{{$res['banner_id']}}','4','600','630')"
                             class="ml-5" style="text-decoration:none">
                                 <i class="layui-icon">&#xe642;</i>
                             </a>
-                            <a title="删除" href="javascript:;" onclick="banner_del(this, {{$res['banner_id']}}, '{{$res['img_url']}}')"
+                            <a title="删除" href="javascript:;" onclick="banner_del(this, '{{$res['banner_id']}}', '{{$res['img_url']}}')"
                             style="text-decoration:none">
                                 <i class="layui-icon">&#xe640;</i>
                             </a>
@@ -105,7 +105,7 @@
             layer.confirm('确认要删除吗？',function(index){
                 //捉到所有被选中的，发异步进行删除
                 $.ajax({
-                    url: "{{url('Banner/ajaxDelAllData')}}",
+                    url: "{{url('admin/banner/destroy')}}",
                     type: 'post',
                     data: $('form').serialize(),
                     success: function(res)
@@ -137,7 +137,7 @@
                 //发异步删除数据
                 $.post(
                     '{{url("admin/banner/destroy")}}',
-                    {banner_id: banner_id, img_url: img_url},
+                    {'banner_id': banner_id, 'img_url': img_url, '_token': '{{csrf_token()}}'},
                     function(res){
                         if (res['status'] == 1)
                         {

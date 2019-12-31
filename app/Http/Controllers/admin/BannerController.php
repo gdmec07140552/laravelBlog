@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Models\AdminLog;
+use App\Models\Article;
 use App\Models\Banner;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -15,7 +17,10 @@ class BannerController extends Controller
      */
     public function index()
     {
-        $result = Banner::orderby('sort', 'desc')->paginate(10);
+        // 检测用户的基本权限
+        if (!permission())
+            return redirect('admin/no_permission');
+        $result = Banner::orderby('sort', 'desc')->orderby('banner_id', 'desc')->paginate(10);
         //引入js文件
         return view('admin.banner.list')->with('result', $result)->with('js_array', ['layui', 'x-layui']);
     }
@@ -27,7 +32,7 @@ class BannerController extends Controller
      */
     public function create()
     {
-        $article = [];
+        $article = Article::get();
         //引入js文件
         return view('admin.banner.add')->with('article', $article)->with('js_array', ['layui', 'x-layui']);
     }
@@ -41,7 +46,15 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         //获取post提交过来的数据
-        dd($request);
+        $input = $request->except('_token', 'images');
+        $result = Banner::create($input);
+        if ($result) {
+            // 管理员日志记录
+            AdminLog::addLog(1, '轮播管理', $result);
+            return ['status' => 1, 'msg' => '添加成功'];
+        } else {
+            return ['status' => 0, 'msg' => '添加失败'];
+        }
     }
 
     /**
@@ -63,7 +76,11 @@ class BannerController extends Controller
      */
     public function edit($id)
     {
-        //
+        //获取所有文章
+        $article = Article::get();
+        //获取轮播图信息
+        $result = Banner::where('banner_id', '=', $id)->first();
+        return view('admin.banner.edit')->with('result', $result)->with('article', $article)->with('js_array', ['layui', 'x-admin']);
     }
 
     /**
@@ -73,9 +90,26 @@ class BannerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        //获取提交的数据
+        $input = $request->except('_token', 'images');
+        $banner = Banner::where('banner_id', '=', $input['banner_id'])->first();
+        if (!$banner)
+            return ['status' => 0, 'msg' => '修改失败'];
+        $old_img = $banner['img_url'];
+        $result = $banner->update($input);
+        if ($result) {
+            //修改成功把旧的图片删除
+            if (!empty($input['img_url']) && $input['img_url'] != $old_img){
+                delImage($old_img);
+            }
+            // 管理员日志记录
+            AdminLog::addLog(2, '轮播管理', $input['banner_id']);
+            return ['status' => 1, 'msg' => '修改成功'];
+        } else {
+            return ['status' => 0, 'msg' => '修改失败'];
+        }
     }
 
     /**
@@ -84,8 +118,11 @@ class BannerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        //获取提交数据
+        $input = $request->except('_token');
+        if (empty($input['banner_id']))
+            return ['status' => 0, 'msg' => '删除失败'];
     }
 }
